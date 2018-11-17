@@ -47,10 +47,11 @@ public class ItemServiceImpl implements ItemService, ClipboardOwner {
 	@Override
 	public void select(int index) {
 
-		StringSelection stringSelection = new StringSelection(getElementAt(index).getContent());
-		Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-		clipboard.setContents(stringSelection, this);
-
+		if (index >= 0) {
+			StringSelection stringSelection = new StringSelection(getElementAt(index).getContent());
+			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+			clipboard.setContents(stringSelection, this);
+		}
 	}
 
 	@Override
