@@ -1,0 +1,98 @@
+buildscript {
+    ext {
+        springBootVersion = '2.0.0.RELEASE'
+    }
+    repositories {
+        mavenCentral()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+    }
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+apply plugin: 'application'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+
+group 'com.camas'
+version '0.1.0'
+
+mainClassName = 'com.camas.copyist.Copyist'
+
+jar {
+    baseName = 'copyist'
+    version = '0.1.0'
+}
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+    flatDir dirs: "${rootDir}/lib"}
+
+
+dependencies {
+    //Database
+    compile('org.springframework.boot:spring-boot-starter-data-jpa')
+    compile("com.h2database:h2")
+    compile 'com.intellij:javac2:2018.2'
+    compile 'org.jdom:jdom:1.1'
+
+    //Testing
+    testCompile('org.springframework.boot:spring-boot-starter-test')
+
+    //Selenium
+    compile('org.seleniumhq.selenium:selenium-java')
+}
+
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '4.6'
+}
+// Makes the jar executable for running as a service
+bootJar {
+    launchScript()
+}
+
+//Allows for setting profile environment variable on the command line
+bootRun {
+    systemProperties System.properties
+}
+
+test {
+    useJUnit {
+        includeCategories 'com.camas.chorusdigital.UnitTest'
+    }
+}
+
+task integrationTest(type: Test) {
+    useJUnit {
+        includeCategories 'com.camas.chorusdigital.IntegrationTest'
+    }
+}
+
+configurations {
+    antTask
+}
+
+dependencies {
+    antTask name: 'javac2', version: '2018.2'
+    antTask name: 'forms_rt', version: '2018.2'
+    antTask name: 'asm-all', version: '5.0.3-idea'
+    antTask group: 'org.jdom', name: 'jdom', version: '1.1'
+}
+
+task compileJava(overwrite: true, dependsOn: configurations.compile.getTaskDependencyFromProjectDependency(true, 'jar')) {
+    doLast {
+        project.sourceSets.main.output.classesDir.mkdirs()
+        ant.taskdef name: 'javac2', classname: 'com.intellij.ant.Javac2', classpath: configurations.antTask.asPath
+        ant.javac2 srcdir: project.sourceSets.main.java.srcDirs.join(':'),
+                classpath: project.sourceSets.main.compileClasspath.asPath,
+                destdir: project.sourceSets.main.output.classesDir,
+                source: sourceCompatibility,
+                target: targetCompatibility,
+                includeAntRuntime: false
+    }
+}
