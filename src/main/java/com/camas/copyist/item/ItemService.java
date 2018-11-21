@@ -14,4 +14,6 @@ public interface ItemService  extends ListModel<Item> {
 	void delete(Long id);
 
 	void select(int index);
+
+	void renumber();
 }

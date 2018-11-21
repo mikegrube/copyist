@@ -24,6 +24,7 @@ public class Main {
 	private JButton btnAdd;
 	private JButton btnEdit;
 	private JButton btnDelete;
+	private JButton btnRenumber;
 
 	private ItemService itemService;
 
@@ -69,7 +70,20 @@ public class Main {
 			}
 		});
 
-		log.info("Finished initialization");
+		btnRenumber.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				onRenumber();
+			}
+		});
+
+	}
+
+	private void onRenumber() {
+
+		itemService.renumber();
+		lstItems.updateUI();
+
 	}
 
 	private void populateList() {

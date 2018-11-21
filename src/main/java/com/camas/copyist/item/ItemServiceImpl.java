@@ -11,6 +11,7 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.io.*;
 
 
 @Service
@@ -18,11 +19,12 @@ public class ItemServiceImpl implements ItemService, ClipboardOwner {
 	private static final Logger log = LoggerFactory.getLogger(ItemServiceImpl.class);
 
 	private ItemRepository repository;
-
 	@Autowired
 	public void setRepository(ItemRepository repository) {
 		this.repository = repository;
 	}
+
+	private final int interval = 5;
 
 	@Override
 	public Iterable<Item> list() {
@@ -51,6 +53,59 @@ public class ItemServiceImpl implements ItemService, ClipboardOwner {
 			StringSelection stringSelection = new StringSelection(getElementAt(index).getContent());
 			Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
 			clipboard.setContents(stringSelection, this);
+//			runPaste();
+		}
+	}
+
+	@Override
+	public void renumber() {
+
+		Iterable<Item> items = list();
+
+		int next = 5;
+
+		for (Item item : items) {
+			item.setPosition(next);
+			save(item);
+
+			next += interval;
+		}
+	}
+
+	private void runPaste() {
+
+		String script = "tell application \"Safari\" to activate\n" +
+				"delay 0.5\n" +
+				"tell application \"System Events\"\n" +
+				"tell process \"Safari\"\n" +
+				"keystroke \"v\" using command down\n" +
+				"end tell\n" +
+				"end tell\n";
+/*
+		String script = "tell application \"Safari\"\n" +
+				"activate\n" +
+				"delay 0.5\n" +
+				"" +
+				"end tell\n";
+*/
+		String[] args = { "osascript", "-e", script };
+
+		try {
+			Runtime runtime = Runtime.getRuntime();
+			ProcessBuilder processBuilder = new ProcessBuilder(args);
+			processBuilder.redirectErrorStream(true);
+			Process process = processBuilder.start();
+
+			InputStream inputStream = process.getInputStream();
+			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+			String line;
+			while ((line = bufferedReader.readLine()) != null) {
+				log.warn(line);
+			}
+			bufferedReader.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

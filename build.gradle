@@ -17,13 +17,13 @@ apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
 group 'com.camas'
-version '0.1.0'
+version '0.1.1'
 
 mainClassName = 'com.camas.copyist.Copyist'
 
 jar {
     baseName = 'copyist'
-    version = '0.1.0'
+    version = '0.1.1'
 }
 sourceCompatibility = 1.8
 targetCompatibility = 1.8

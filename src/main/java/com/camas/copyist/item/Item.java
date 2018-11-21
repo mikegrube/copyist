@@ -49,6 +49,6 @@ public class Item {
 	}
 
 	public String toString() {
-		return name;
+		return "(" + position + ") " + name;
 	}
 }
